@@ -388,7 +388,7 @@ function woo_mpgs_init() {
                             currency: "<?php echo esc_js( get_woocommerce_currency() ); ?>",
                             <?php } ?>
                             description: "<?php echo esc_js( sprintf( __( 'Pay for order #%d via %s', 'woo-mpgs' ), $order_id, $this->title ) ); ?>",
-                            customerOrderDate: "<?php echo esc_js( date('Y-m-d') ); ?>",
+                            customerOrderDate: "<?php echo esc_js( gmdate('Y-m-d') ); ?>",
                             customerReference: "<?php echo esc_js( (string) $order->get_user_id() ); ?>",
                             reference: "<?php echo esc_js( (string) $order_id ); ?>"
                         },
