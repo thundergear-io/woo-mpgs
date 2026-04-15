@@ -272,11 +272,7 @@ function woo_mpgs_init() {
             $order = wc_get_order( $order_id );
 
             if ( ! $order ) {
-                wc_add_notice( __( 'Payment error: Order not found.', 'woo-mpgs' ), 'error' );
-                return array(
-                    'result'   => 'fail',
-                    'redirect' => '',
-                );
+                throw new \Exception( __( 'Payment error: Order not found.', 'woo-mpgs' ) );
             }
 
             // Prepare session request
@@ -325,29 +321,19 @@ function woo_mpgs_init() {
             ) );
 
             if ( is_wp_error( $response_json ) ) {
-
-                wc_add_notice( __( 'Payment error: Failed to communicate with MPGS server. Make sure MPGS URL looks like `https://example.mastercard.com/` by removing `checkout/version/*/checkout.js` and end the URL with a slash "/".', 'woo-mpgs' ), 'error' );
-
-                return array(
-                    'result'	=> 'fail',
-                    'redirect'	=> '',
-                );
+                throw new \Exception( __( 'Payment error: Failed to communicate with MPGS server. Make sure MPGS URL looks like `https://example.mastercard.com/` by removing `checkout/version/*/checkout.js` and end the URL with a slash "/".', 'woo-mpgs' ) );
             }
 
             $response = json_decode( $response_json['body'], true );
 
             if ( ! is_array( $response ) || ! isset( $response['result'] ) ) {
-                wc_add_notice( __( 'Payment error: Unexpected response from MPGS server.', 'woo-mpgs' ), 'error' );
-                return array(
-                    'result'   => 'fail',
-                    'redirect' => '',
-                );
+                throw new \Exception( __( 'Payment error: Unexpected response from MPGS server.', 'woo-mpgs' ) );
             }
 
             if( $response['result'] == 'SUCCESS' && ! empty( $response['successIndicator'] ) ) {
 
                 $order->update_meta_data( 'woo_mpgs_successIndicator', $response['successIndicator'] );
-                $order->update_meta_data( 'woo_mpgs_sessionVersion', $response['session']['version'] );
+                $order->update_meta_data( 'woo_mpgs_sessionVersion', isset( $response['session']['version'] ) ? $response['session']['version'] : '' );
                 $order->save();
 
                 $pay_url = add_query_arg( array(
@@ -363,11 +349,7 @@ function woo_mpgs_init() {
 
             } else {
                 $explanation = isset( $response['error']['explanation'] ) ? $response['error']['explanation'] : __( 'Unknown error.', 'woo-mpgs' );
-                wc_add_notice( __( 'Payment error: ', 'woo-mpgs' ) . $explanation, 'error' );
-                return array(
-                    'result'   => 'fail',
-                    'redirect' => '',
-                );
+                throw new \Exception( __( 'Payment error: ', 'woo-mpgs' ) . $explanation );
             }
         }
 
