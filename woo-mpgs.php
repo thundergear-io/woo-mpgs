@@ -217,7 +217,7 @@ function woo_mpgs_init() {
                     'type'          => 'text',
                     'description'   => __( 'API version, given by the Bank', 'woo-mpgs' ),
                     'placeholder'   => __( 'MPGS API Version (66 is recommended)', 'woo-mpgs' ),
-                    'default'       => 49,
+                    'default'       => 66,
                     'desc_tip'      => true
                 ),
                 'merchant_id' => array(
@@ -395,9 +395,7 @@ function woo_mpgs_init() {
                         window.location.href = "<?php echo esc_js( wc_get_checkout_url() ); ?>";
                     }
                     Checkout.configure({
-                        <?php if((int) $this->api_version <= 62) { ?>
                         merchant: "<?php echo esc_js( $this->merchant_id ); ?>",
-                        <?php } ?>
                         order: {
                             id: "<?php echo esc_js( (string) $order_id ); ?>",
                             <?php if((int) $this->api_version <= 62) { ?>
@@ -551,11 +549,7 @@ function woo_mpgs_init() {
         public function add_checkout_script() {
             if ( ! empty( $_REQUEST['sessionId'] ) ) {
 
-                if((int) $this->api_version >= 63) {
-                    $src = $this->service_host."static/checkout/checkout.min.js";
-                } else {
-                    $src = $this->service_host."checkout/version/".$this->api_version."/checkout.js";
-                }
+                $src = $this->service_host."checkout/version/".$this->api_version."/checkout.js";
 
                 ?>
                 <script
