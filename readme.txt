@@ -1,10 +1,9 @@
 === WooCommerce MPGS ===
-Contributors: alibasheer,samahbasheer
-Donate link: http://alibasheer.com
+Contributors: thundergear-io
 Tags: woocommerce, mastercard, mpgs, payment, gateway
 Requires at least: 4.0
 Tested up to: 6.0.2
-Stable tag: 1.5.1
+Stable tag: 1.5.2
 Requires PHP: 5.6
 License: GNU General Public License v3.0
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -14,6 +13,8 @@ This plugin extends WooCommerce with MasterCard Payment Gateway Services (MPGS).
 == Description ==
 
 This plugin implements a Hosted Checkout integration of the MasterCard Payment Gateway Services (MPGS). It has 2 checkout options, either redirect the user to MPGS payment gateway page, or pay through a popup/lightbox on your website without redirection outside your website. The gateway is available on both the classic WooCommerce checkout and the block-based checkout experience.
+
+This plugin is a fork of WooCommerce MPGS originally developed by Ali Basheer (https://alibasheer.com), maintained and extended by [thundergear.io](https://thundergear.io). For support, contact us at contact@thundergear.io.
 
 == Installation ==
 
@@ -48,6 +49,11 @@ Make sure that your Merchant Account currency is the same as your website curren
 3. Redirect to Payment page
 
 == Changelog ==
+
+= 1.5.2 =
+* Fix PHP fatal error in block checkout support caused by incorrect method visibility on get_setting()
+* Updated maintainer to thundergear.io; support contact is now contact@thundergear.io
+* Added GPL v3 attribution to original author Ali Basheer
 
 = 1.5.1 =
 * Fix MSO error
@@ -86,20 +92,23 @@ Make sure that your Merchant Account currency is the same as your website curren
 
 == Upgrade Notice ==
 
+= 1.5.2 =
+Critical fix: resolves PHP fatal error on sites using the WooCommerce block-based checkout. Upgrade immediately if you have block checkout enabled.
+
 = 1.5.1 =
 Fix MSO error
 
 = 1.5.0 =
-Support to latest API version 66 and some other enhancements, check change log for more details. If you faced any issue, contact me at alibasheer@hotmail.com
+Support to latest API version 66 and some other enhancements, check change log for more details. If you faced any issue, contact us at contact@thundergear.io
 
 = 1.4.0 =
-Enhanced compatibility, check change log for more details. If you faced any issue, contact me at alibasheer@hotmail.com
+Enhanced compatibility, check change log for more details. If you faced any issue, contact us at contact@thundergear.io
 
 = 1.3.0 =
-Support to latest API version 55 and some other enhancements, check change log for more details. If you faced any issue, contact me at alibasheer@hotmail.com
+Support to latest API version 55 and some other enhancements, check change log for more details. If you faced any issue, contact us at contact@thundergear.io
 
 = 1.2.0 =
-This version comes with lots of enhancements, check change log for more details. If you faced any issue, contact me at alibasheer@hotmail.com
+This version comes with lots of enhancements, check change log for more details. If you faced any issue, contact us at contact@thundergear.io
 
 = 1.1.0 =
 This version comes with lots of enhancement related to multisite, payment verification, error handling...

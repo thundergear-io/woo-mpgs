@@ -97,7 +97,7 @@ final class WOO_MPGS_Blocks_Support extends AbstractPaymentMethodType {
      * @param mixed  $default Default value.
      * @return mixed
      */
-    private function get_setting( $key, $default = '' ) {
+    protected function get_setting( $key, $default = '' ) {
         return isset( $this->settings[ $key ] ) ? $this->settings[ $key ] : $default;
     }
 }

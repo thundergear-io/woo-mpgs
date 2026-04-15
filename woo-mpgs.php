@@ -2,13 +2,30 @@
 /**
  * Plugin Name: WooCommerce MPGS
  * Description: Extends WooCommerce with MasterCard Payment Gateway Services (MPGS).
- * Version: 1.5.1
+ * Version: 1.5.2
  * Text Domain: woo-mpgs
  * Domain Path: /languages
- * Author: Ali Basheer
- * Author URI: https://alibasheer.com
+ * Author: thundergear.io
+ * Author URI: https://thundergear.io
  * License: GNU General Public License v3.0
  * License URI: http://www.gnu.org/licenses/gpl-3.0.html
+ *
+ * This plugin is a fork of WooCommerce MPGS originally developed by Ali Basheer
+ * (https://alibasheer.com). Maintained and extended by thundergear.io.
+ * Support: contact@thundergear.io
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -20,7 +37,7 @@ if ( ! defined( 'WOO_MPGS_FILE' ) ) {
 }
 
 if ( ! defined( 'WOO_MPGS_VERSION' ) ) {
-    define( 'WOO_MPGS_VERSION', '1.5.1' );
+    define( 'WOO_MPGS_VERSION', '1.5.2' );
 }
 
 /**
