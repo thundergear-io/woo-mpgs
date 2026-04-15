@@ -15,6 +15,14 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit; // Exit if accessed directly.
 }
 
+if ( ! defined( 'WOO_MPGS_FILE' ) ) {
+    define( 'WOO_MPGS_FILE', __FILE__ );
+}
+
+if ( ! defined( 'WOO_MPGS_VERSION' ) ) {
+    define( 'WOO_MPGS_VERSION', '1.5.1' );
+}
+
 /**
  * Loading text domain
  */
@@ -50,6 +58,42 @@ function woo_mpgs_add_to_gateways( $gateways ) {
     return $gateways;
 }
 add_filter( 'woocommerce_payment_gateways', 'woo_mpgs_add_to_gateways' );
+
+/**
+ * Declare compatibility with WooCommerce Cart and Checkout blocks.
+ */
+function woo_mpgs_declare_blocks_compatibility() {
+    if ( class_exists( '\Automattic\WooCommerce\Utilities\FeaturesUtil' ) ) {
+        \Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility( 'cart_checkout_blocks', __FILE__, true );
+    }
+}
+add_action( 'before_woocommerce_init', 'woo_mpgs_declare_blocks_compatibility' );
+
+/**
+ * Register checkout block support for the MPGS gateway.
+ */
+function woo_mpgs_register_blocks_support() {
+    if ( ! class_exists( 'Automattic\WooCommerce\Blocks\Payments\Integrations\AbstractPaymentMethodType' ) ) {
+        return;
+    }
+
+    require_once dirname( __FILE__ ) . '/includes/class-woo-mpgs-blocks-support.php';
+
+    add_action(
+        'woocommerce_blocks_payment_method_type_registration',
+        'woo_mpgs_register_block_payment_method'
+    );
+}
+add_action( 'woocommerce_blocks_loaded', 'woo_mpgs_register_blocks_support' );
+
+/**
+ * Register the MPGS gateway with the WooCommerce checkout blocks registry.
+ *
+ * @param Automattic\WooCommerce\Blocks\Payments\PaymentMethodRegistry $payment_method_registry Payment method registry.
+ */
+function woo_mpgs_register_block_payment_method( $payment_method_registry ) {
+    $payment_method_registry->register( new WOO_MPGS_Blocks_Support() );
+}
 
 /**
  * WooCommerce MPGS
