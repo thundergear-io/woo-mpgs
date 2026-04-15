@@ -405,7 +405,7 @@ function woo_mpgs_init() {
                             currency: "<?php echo esc_js( get_woocommerce_currency() ); ?>",
                             <?php } ?>
                             description: "<?php echo esc_js( sprintf( __( 'Pay for order #%d via %s', 'woo-mpgs' ), $order_id, $this->title ) ); ?>",
-                            customerOrderDate: "<?php echo esc_js( gmdate('Y-m-d') ); ?>",
+                            customerOrderDate: "<?php echo esc_js( wp_date('Y-m-d') ); ?>",
                             customerReference: "<?php echo esc_js( (string) $order->get_user_id() ); ?>",
                             reference: "<?php echo esc_js( (string) $order_id ); ?>"
                         },
@@ -511,7 +511,7 @@ function woo_mpgs_init() {
                     exit;
                 }
 
-                $response = json_decode( utf8_decode( $response_json['body'] ), true );
+                $response = json_decode( $response_json['body'], true );
 
                 if ( ! is_array( $response ) || empty( $response['transaction'] ) || ! is_array( $response['transaction'] ) ) {
                     $order->add_order_note( __( 'Payment error: Unexpected response from MPGS server.', 'woo-mpgs' ) );
