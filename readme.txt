@@ -99,16 +99,16 @@ Critical fix: resolves PHP fatal error on sites using the WooCommerce block-base
 Fix MSO error
 
 = 1.5.0 =
-Support to latest API version 66 and some other enhancements, check change log for more details. If you faced any issue, contact us at contact@thundergear.io
+Support to latest API version 66 and some other enhancements, check change log for more details. If you face any issue, contact us at contact@thundergear.io
 
 = 1.4.0 =
-Enhanced compatibility, check change log for more details. If you faced any issue, contact us at contact@thundergear.io
+Enhanced compatibility, check change log for more details. If you face any issue, contact us at contact@thundergear.io
 
 = 1.3.0 =
-Support to latest API version 55 and some other enhancements, check change log for more details. If you faced any issue, contact us at contact@thundergear.io
+Support to latest API version 55 and some other enhancements, check change log for more details. If you face any issue, contact us at contact@thundergear.io
 
 = 1.2.0 =
-This version comes with lots of enhancements, check change log for more details. If you faced any issue, contact us at contact@thundergear.io
+This version comes with lots of enhancements, check change log for more details. If you face any issue, contact us at contact@thundergear.io
 
 = 1.1.0 =
 This version comes with lots of enhancement related to multisite, payment verification, error handling...
