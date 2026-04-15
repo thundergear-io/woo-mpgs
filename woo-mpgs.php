@@ -327,6 +327,14 @@ function woo_mpgs_init() {
 
             $response = json_decode( $response_json['body'], true );
 
+            if ( ! is_array( $response ) || ! isset( $response['result'] ) ) {
+                wc_add_notice( __( 'Payment error: Unexpected response from MPGS server.', 'woo-mpgs' ), 'error' );
+                return array(
+                    'result'   => 'fail',
+                    'redirect' => '',
+                );
+            }
+
             if( $response['result'] == 'SUCCESS' && ! empty( $response['successIndicator'] ) ) {
 
                 update_post_meta( $order_id,'woo_mpgs_successIndicator', $response['successIndicator'] );
@@ -344,7 +352,12 @@ function woo_mpgs_init() {
                 );
 
             } else {
-                wc_add_notice( __( 'Payment error: ', 'woo-mpgs' ) . $response['error']['explanation'], 'error' );
+                $explanation = isset( $response['error']['explanation'] ) ? $response['error']['explanation'] : __( 'Unknown error.', 'woo-mpgs' );
+                wc_add_notice( __( 'Payment error: ', 'woo-mpgs' ) . $explanation, 'error' );
+                return array(
+                    'result'   => 'fail',
+                    'redirect' => '',
+                );
             }
         }
 
@@ -362,45 +375,45 @@ function woo_mpgs_init() {
                 <script type="text/javascript">
                     function errorCallback( error ) {
                         alert( "Error: " + JSON.stringify( error ) );
-                        window.location.href = "<?php echo wc_get_checkout_url(); ?>";
+                        window.location.href = "<?php echo esc_js( wc_get_checkout_url() ); ?>";
                     }
                     Checkout.configure({
                         <?php if((int) $this->api_version <= 62) { ?>
-                        merchant: "<?php echo $this->merchant_id; ?>",
+                        merchant: "<?php echo esc_js( $this->merchant_id ); ?>",
                         <?php } ?>
                         order: {
-                            id: "<?php echo $order_id; ?>",
+                            id: "<?php echo esc_js( (string) $order_id ); ?>",
                             <?php if((int) $this->api_version <= 62) { ?>
-                            amount: "<?php echo $order->get_total(); ?>",
-                            currency: "<?php echo get_woocommerce_currency(); ?>",
+                            amount: "<?php echo esc_js( (string) $order->get_total() ); ?>",
+                            currency: "<?php echo esc_js( get_woocommerce_currency() ); ?>",
                             <?php } ?>
-                            description: "<?php printf( __( 'Pay for order #%d via %s', 'woo-mpgs' ), $order_id, $this->title ); ?>",
-                            customerOrderDate: "<?php echo date('Y-m-d'); ?>",
-                            customerReference: "<?php echo $order->get_user_id(); ?>",
-                            reference: "<?php echo $order_id; ?>"
+                            description: "<?php echo esc_js( sprintf( __( 'Pay for order #%d via %s', 'woo-mpgs' ), $order_id, $this->title ) ); ?>",
+                            customerOrderDate: "<?php echo esc_js( date('Y-m-d') ); ?>",
+                            customerReference: "<?php echo esc_js( (string) $order->get_user_id() ); ?>",
+                            reference: "<?php echo esc_js( (string) $order_id ); ?>"
                         },
                         session: {
                             id: "<?php echo esc_js( $_REQUEST['sessionId'] ); ?>"
                         },
                         transaction: {
-                            reference: "TRF" + "<?php echo $order_id; ?>"
+                            reference: "TRF" + "<?php echo esc_js( (string) $order_id ); ?>"
                         },
                         billing: {
                             address: {
-                                city: "<?php echo $order->get_billing_city(); ?>",
-                                country: "<?php echo $this->kia_convert_country_code( $order->get_billing_country() ); ?>",
-                                postcodeZip: "<?php echo $order->get_billing_postcode(); ?>",
-                                stateProvince: "<?php echo $order->get_billing_state(); ?>",
-                                street: "<?php echo $order->get_billing_address_1(); ?>",
-                                street2: "<?php echo $order->get_billing_address_2(); ?>"
+                                city: "<?php echo esc_js( $order->get_billing_city() ); ?>",
+                                country: "<?php echo esc_js( $this->kia_convert_country_code( $order->get_billing_country() ) ); ?>",
+                                postcodeZip: "<?php echo esc_js( $order->get_billing_postcode() ); ?>",
+                                stateProvince: "<?php echo esc_js( $order->get_billing_state() ); ?>",
+                                street: "<?php echo esc_js( $order->get_billing_address_1() ); ?>",
+                                street2: "<?php echo esc_js( $order->get_billing_address_2() ); ?>"
                             }
                         },
                         <?php if( ! empty( $order->get_billing_email() ) && ! empty( $order->get_billing_first_name() ) && ! empty( $order->get_billing_last_name() ) && ! empty( $order->get_billing_phone() ) ) { ?>
                         customer: {
-                            email: "<?php echo $order->get_billing_email(); ?>",
-                            firstName: "<?php echo $order->get_billing_first_name(); ?>",
-                            lastName: "<?php echo $order->get_billing_last_name(); ?>",
-                            phone: "<?php echo $order->get_billing_phone(); ?>"
+                            email: "<?php echo esc_js( $order->get_billing_email() ); ?>",
+                            firstName: "<?php echo esc_js( $order->get_billing_first_name() ); ?>",
+                            lastName: "<?php echo esc_js( $order->get_billing_last_name() ); ?>",
+                            phone: "<?php echo esc_js( $order->get_billing_phone() ); ?>"
                         },
                         <?php } ?>
                         interaction: {
@@ -408,10 +421,10 @@ function woo_mpgs_init() {
                             operation: "PURCHASE",
                             <?php } ?>
                             merchant: {
-                                name: "<?php echo ( ! empty( $this->merchant_name ) ) ? $this->merchant_name : 'MPGS'; ?>",
+                                name: "<?php echo esc_js( ! empty( $this->merchant_name ) ? $this->merchant_name : 'MPGS' ); ?>",
                                 address: {
-                                    line1: "<?php echo $this->merchant_address1; ?>",
-                                    line2: "<?php echo $this->merchant_address2; ?>"
+                                    line1: "<?php echo esc_js( $this->merchant_address1 ); ?>",
+                                    line2: "<?php echo esc_js( $this->merchant_address2 ); ?>"
                                 }
                             },
                             displayControl: {
@@ -447,9 +460,21 @@ function woo_mpgs_init() {
         public function process_response () {
 
             global $woocommerce;
-            $order_id = $_REQUEST['order_id'];
+            $order_id        = absint( $_REQUEST['order_id'] ?? 0 );
+            $resultIndicator = sanitize_text_field( wp_unslash( $_REQUEST['resultIndicator'] ?? '' ) );
+
+            if ( ! $order_id ) {
+                wp_redirect( wc_get_checkout_url() );
+                exit;
+            }
+
             $order = wc_get_order( $order_id );
-            $resultIndicator = $_REQUEST['resultIndicator'];
+
+            if ( ! $order ) {
+                wp_redirect( wc_get_checkout_url() );
+                exit;
+            }
+
             $mpgs_successIndicator = get_post_meta( $order_id, "woo_mpgs_successIndicator", true );
 
             if( $resultIndicator == $mpgs_successIndicator ) {
@@ -463,7 +488,22 @@ function woo_mpgs_init() {
                     ),
                 ) );
 
+                if ( is_wp_error( $response_json ) ) {
+                    $order->add_order_note( __( 'Payment error: Failed to communicate with MPGS server.', 'woo-mpgs' ) );
+                    wc_add_notice( __( 'Payment error: Failed to communicate with MPGS server.', 'woo-mpgs' ), 'error' );
+                    wp_redirect( wc_get_checkout_url() );
+                    exit;
+                }
+
                 $response = json_decode( utf8_decode( $response_json['body'] ), true );
+
+                if ( ! is_array( $response ) || empty( $response['transaction'] ) || ! is_array( $response['transaction'] ) ) {
+                    $order->add_order_note( __( 'Payment error: Unexpected response from MPGS server.', 'woo-mpgs' ) );
+                    wc_add_notice( __( 'Payment error: Unexpected response from MPGS server.', 'woo-mpgs' ), 'error' );
+                    wp_redirect( wc_get_checkout_url() );
+                    exit;
+                }
+
                 $transaction_index = count( $response['transaction'] ) - 1;
                 $transaction_result = $response['transaction'][$transaction_index]['result'];
                 $transaction_receipt = $response['transaction'][$transaction_index]['transaction']['receipt'];
@@ -503,9 +543,9 @@ function woo_mpgs_init() {
 
                 ?>
                 <script
-                        src=<?php echo $src; ?>
+                        src="<?php echo esc_url( $src ); ?>"
                         data-error="errorCallback"
-                        data-cancel="<?php echo wc_get_checkout_url(); ?>"
+                        data-cancel="<?php echo esc_url( wc_get_checkout_url() ); ?>"
                 ></script>
                 <?php
             }
