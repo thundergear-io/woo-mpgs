@@ -271,6 +271,14 @@ function woo_mpgs_init() {
         public function process_payment( $order_id ) {
             $order = wc_get_order( $order_id );
 
+            if ( ! $order ) {
+                wc_add_notice( __( 'Payment error: Order not found.', 'woo-mpgs' ), 'error' );
+                return array(
+                    'result'   => 'fail',
+                    'redirect' => '',
+                );
+            }
+
             // Prepare session request
             $session_request = array();
 
@@ -311,6 +319,7 @@ function woo_mpgs_init() {
             $response_json = wp_remote_post( $request_url, array(
                 'body'	  => json_encode ( $session_request ),
                 'headers' => array(
+                    'Content-Type'  => 'application/json',
                     'Authorization' => 'Basic ' . base64_encode( "merchant." . $this->merchant_id . ":" . $this->auth_pass ),
                 ),
             ) );
@@ -337,8 +346,9 @@ function woo_mpgs_init() {
 
             if( $response['result'] == 'SUCCESS' && ! empty( $response['successIndicator'] ) ) {
 
-                update_post_meta( $order_id,'woo_mpgs_successIndicator', $response['successIndicator'] );
-                update_post_meta( $order_id,'woo_mpgs_sessionVersion', $response['session']['version'] );
+                $order->update_meta_data( 'woo_mpgs_successIndicator', $response['successIndicator'] );
+                $order->update_meta_data( 'woo_mpgs_sessionVersion', $response['session']['version'] );
+                $order->save();
 
                 $pay_url = add_query_arg( array(
                     'sessionId'     => $response['session']['id'],
@@ -371,6 +381,13 @@ function woo_mpgs_init() {
             if( ! empty( $_REQUEST['sessionId'] ) ) {
 
                 $order = wc_get_order( $order_id );
+
+                if ( ! $order ) {
+                    wc_add_notice( __( 'Payment error: Order not found.', 'woo-mpgs' ), 'error' );
+                    wp_redirect( wc_get_checkout_url() );
+                    exit;
+                }
+                $session_id = sanitize_text_field( wp_unslash( $_REQUEST['sessionId'] ) );
                 ?>
                 <script type="text/javascript">
                     function errorCallback( error ) {
@@ -393,7 +410,7 @@ function woo_mpgs_init() {
                             reference: "<?php echo esc_js( (string) $order_id ); ?>"
                         },
                         session: {
-                            id: "<?php echo esc_js( $_REQUEST['sessionId'] ); ?>"
+                            id: "<?php echo esc_js( $session_id ); ?>"
                         },
                         transaction: {
                             reference: "TRF" + "<?php echo esc_js( (string) $order_id ); ?>"
@@ -438,7 +455,7 @@ function woo_mpgs_init() {
                         }
                     });
                 </script>
-                <p class="loading-payment-text"><?php echo __( 'Loading payment method, please wait. This may take up to 30 seconds.', 'woo-mpgs' ); ?></p>
+                <p class="loading-payment-text"><?php echo esc_html__( 'Loading payment method, please wait. This may take up to 30 seconds.', 'woo-mpgs' ); ?></p>
                 <script type="text/javascript">
                     <?php  if((int) $this->api_version >= 63) {
                         echo 'Checkout.showPaymentPage();';
@@ -459,7 +476,6 @@ function woo_mpgs_init() {
          */
         public function process_response () {
 
-            global $woocommerce;
             $order_id        = absint( $_REQUEST['order_id'] ?? 0 );
             $resultIndicator = sanitize_text_field( wp_unslash( $_REQUEST['resultIndicator'] ?? '' ) );
 
@@ -475,7 +491,7 @@ function woo_mpgs_init() {
                 exit;
             }
 
-            $mpgs_successIndicator = get_post_meta( $order_id, "woo_mpgs_successIndicator", true );
+            $mpgs_successIndicator = $order->get_meta( 'woo_mpgs_successIndicator', true );
 
             if( $resultIndicator == $mpgs_successIndicator ) {
 
@@ -504,12 +520,12 @@ function woo_mpgs_init() {
                     exit;
                 }
 
-                $transaction_index = count( $response['transaction'] ) - 1;
-                $transaction_result = $response['transaction'][$transaction_index]['result'];
-                $transaction_receipt = $response['transaction'][$transaction_index]['transaction']['receipt'];
+                $transaction_index   = count( $response['transaction'] ) - 1;
+                $transaction_result  = $response['transaction'][$transaction_index]['result'] ?? '';
+                $transaction_receipt = $response['transaction'][$transaction_index]['transaction']['receipt'] ?? '';
 
                 if( $transaction_result == "SUCCESS" && ! empty( $transaction_receipt ) ) {
-                    $woocommerce->cart->empty_cart();
+                    WC()->cart->empty_cart();
                     $order->add_order_note( sprintf( __( 'MPGS Payment completed with Transaction Receipt: %s.', 'woo-mpgs' ), $transaction_receipt ) );
                     $order->payment_complete( $transaction_receipt );
 
